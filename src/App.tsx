@@ -27,15 +27,25 @@ const tarotCards = [
   { name: "The World", meaning: "A day of fulfillment and achievement. You are moving towards a brighter future.", image: "public/image/tarot/世界.jpg" },
 ];
 
+const generateCustomMessage = (cardName, name) => {
+  const messages = {
+    "The Fool": "作为愚者，你今天将勇敢地迈向新旅程。未知的道路充满无限可能，拥抱变化，迎接新的开始。",
+    // ... 为每张塔罗牌生成个性化信息
+  };
+  return messages[cardName] || "今天，你抽到了一张特别的牌，它预示着你的一天将充满神秘和惊喜。";
+};
+
 
 const App = () => {
+  const [name, setName] = useState('');
   const [todayTarot, setTodayTarot] = useState(null);
   const [canCheckIn, setCanCheckIn] = useState(true);
 
   useEffect(() => {
+    localStorage.removeItem("lastCheckIn");
     const lastCheckIn = localStorage.getItem("lastCheckIn");
     const today = dayjs().format("YYYY-MM-DD");
-
+    
     if (lastCheckIn === today) {
       const savedCard = JSON.parse(localStorage.getItem("signedInCard"));
       if (savedCard) {
@@ -50,25 +60,33 @@ const App = () => {
 
     const randomIndex = Math.floor(Math.random() * tarotCards.length);
     const chosenCard = tarotCards[randomIndex];
-
+    const customMessage = generateCustomMessage(chosenCard.name, name);
+    const keyword = "控制"; // 示例关键词，可以根据牌面内容动态生成
     localStorage.setItem("lastCheckIn", dayjs().format("YYYY-MM-DD"));
-    localStorage.setItem("signedInCard", JSON.stringify(chosenCard));
-    setTodayTarot(chosenCard);
+    localStorage.setItem("signedInCard", JSON.stringify({ ...chosenCard, customMessage, keyword }));
+    setTodayTarot({ ...chosenCard, customMessage, keyword });
     setCanCheckIn(false);
   };
 
   return (
     <div style={{ textAlign: "center", padding: "20px" }}>
       <h1>Daily tarot fortune</h1>
-      {todayTarot ? (
+      {todayTarot && (
         <div>
           <h2>{todayTarot.name}</h2>
           <img src={todayTarot.image} alt={todayTarot.name} style={{width:"200px",borderRadius:"10px"}} />
           <p>{todayTarot.meaning}</p>
+          <p>✨{todayTarot.customMessage}</p>
+          <p>今日关键词：{todayTarot.keyword}</p>
         </div>
-      ) : (
-        <p>{canCheckIn ? "Click to sign in to get today’s fortune" : "You have already signed in today!"}</p>
       )}
+      <input
+        type="text"
+        placeholder="Enter your name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        style={{ padding: "10px", margin: "10px" }}
+      />
       <button
         onClick={handleCheckIn}
         disabled={!canCheckIn}
