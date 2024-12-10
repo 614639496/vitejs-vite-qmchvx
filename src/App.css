@@ -1,8 +1,19 @@
+body {
+  margin: 0;
+  height: 100vh; /* 视口高度 */
+  background-color: white; /* 可以根据需要调整背景色 */
+}
 #root {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  min-height: calc(100vh - 4rem); /* 减去padding的高度 */
+  background-color: white; /* 可以根据需要调整背景色 */
 }
 
 .logo {
@@ -41,3 +52,22 @@
   color: #888;
 }
 
+.tarot-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  color: white; /* 设置字体颜色 */
+  background-color: #646cffaa; /* 设置背景颜色 */
+  border: none; /* 去除边框 */
+  border-radius: 5px; /* 设置边框圆角 */
+  cursor: pointer; /* 鼠标悬停时显示指针 */
+  transition: background-color 0.3s; /* 背景颜色变化的过渡效果 */
+}
+
+.tarot-button:disabled {
+  background-color: #cccccc; /* 禁用时的背景颜色 */
+  cursor: not-allowed; /* 禁用时的鼠标样式 */
+}
+
+.tarot-button:not(:disabled):hover {
+  background-color: #646cff; /* 鼠标悬停时的背景颜色 */
+}
