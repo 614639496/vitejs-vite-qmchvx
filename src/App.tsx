@@ -1,6 +1,7 @@
 import './App.css'
 import React, { useState, useEffect } from "react";
 import dayjs from "dayjs";
+import { FacebookShareButton, TwitterShareButton, EmailShareButton, FacebookIcon, TwitterIcon, EmailIcon } from 'react-share';
 
 const tarotCards = [
   { name: "The Fool", meaning: "Today marks a new beginning. Embrace the unknown and infinite possibilities ahead.", image: "public/image/tarot/愚者.jpg", keywords:"Adventure", customMessage:"As you step into the unknown, remember that every adventure comes with its own set of challenges and rewards.{name}, keep an open mind and heart, and let the journey unfold." },
@@ -58,7 +59,7 @@ const App = () => {
     const today = dayjs().format("YYYY-MM-DD");
     
     if (lastCheckIn === today) {
-      const savedCard = JSON.parse(localStorage.getItem("signedInCard"));
+      const savedCard = JSON.parse(localStorage.getItem("signedInCard") || '{}');
       if (savedCard) {
         setTodayTarot(savedCard);
         setCanCheckIn(false);
@@ -115,6 +116,31 @@ const App = () => {
       >
         {canCheckIn ? "Sign in" : "Signed in"}
       </button>
+      {todayTarot && (
+        <div>
+          <FacebookShareButton
+            url={window.location.href}
+            quote={todayTarot.customMessage}
+            hashtag="#tarotfortune"
+          >
+            <FacebookIcon size={32} round />
+          </FacebookShareButton>
+          <TwitterShareButton
+            url={window.location.href}
+            title={todayTarot.customMessage}
+            hashtags={['tarotfortune']}
+          >
+            <TwitterIcon size={32} round />
+          </TwitterShareButton>
+          <EmailShareButton
+            url={window.location.href}
+            subject={`Your Daily Tarot Fortune - ${todayTarot.name}`}
+            body={todayTarot.customMessage}
+          >
+            <EmailIcon size={32} round />
+          </EmailShareButton>
+        </div>
+      )}
     </div>
   );
 };

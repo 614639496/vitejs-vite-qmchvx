@@ -13,7 +13,7 @@ body {
   padding: 2rem;
   text-align: center;
   min-height: calc(100vh - 4rem); /* 减去padding的高度 */
-  background-color: white; /* 可以根据需要调整背景色 */
+  background-color: rgb(203, 197, 197); /* 可以根据需要调整背景色 */
 }
 
 .logo {
