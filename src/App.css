@@ -1,7 +1,10 @@
 body {
   margin: 0;
   height: 100vh; /* 视口高度 */
-  background-color: white; /* 可以根据需要调整背景色 */
+  background-color: rgb(203, 197, 197); /* 可以根据需要调整背景色 */
+  background-size: cover; /* 确保背景图片覆盖整个元素 */
+  background-position: center; /* 将背景图片放置在元素中心 */
+  background-attachment: fixed;
 }
 #root {
   display: flex;

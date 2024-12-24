@@ -2,6 +2,13 @@ import './App.css'
 import React, { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import { FacebookShareButton, TwitterShareButton, EmailShareButton, FacebookIcon, TwitterIcon, EmailIcon } from 'react-share';
+import axios from 'axios';
+import { getTarotCardDescription } from './services/tarotService';
+
+const API_URL = 'https://your-api-endpoint'; // 替换为实际的API端点
+const ACCESS_KEY_ID = 'your-access-key-id'; // 替换为你的AccessKey ID
+const ACCESS_KEY_SECRET = 'your-access-key-secret'; // 替换为你的AccessKey Secret
+
 
 const tarotCards = [
   { name: "The Fool", meaning: "Today marks a new beginning. Embrace the unknown and infinite possibilities ahead.", image: "public/image/tarot/愚者.jpg", keywords:"Adventure", customMessage:"As you step into the unknown, remember that every adventure comes with its own set of challenges and rewards.{name}, keep an open mind and heart, and let the journey unfold." },
@@ -35,6 +42,7 @@ interface TarotCard {
   meaning: string;
   customMessage: string | undefined;
   keyword: string;
+  description:string;
 }
 
 
@@ -52,6 +60,7 @@ const App = () => {
   const [todayTarot, setTodayTarot] = useState<TarotCard | null>(null);
  
   const [canCheckIn, setCanCheckIn] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     localStorage.removeItem("lastCheckIn");
@@ -67,21 +76,28 @@ const App = () => {
     }
   }, []);
 
-  const handleCheckIn = () => {
+  const handleCheckIn = async () => {
     if (!canCheckIn) return;
 
     const randomIndex = Math.floor(Math.random() * tarotCards.length);
     const chosenCard = tarotCards[randomIndex];
     //const customMessage = generateCustomMessage(chosenCard.name, name);
+    try {
+    const description = await getTarotCardDescription(chosenCard.name, name);
     const customMessage = chosenCard.customMessage? chosenCard.customMessage.replace("{name}", name)
     : `You've pulled a unique card today, ${name}. It foretells a day ahead brimming with enigmatic delights and unexpected surprises.`;;
     const keyword = chosenCard.keywords; // 示例关键词，可以根据牌面内容动态生成
     localStorage.setItem("lastCheckIn", dayjs().format("YYYY-MM-DD"));
     localStorage.setItem("signedInCard", JSON.stringify({ ...chosenCard, customMessage, keyword }));
     setTodayTarot({ 
-      ...chosenCard, customMessage, keyword,
+      ...chosenCard, customMessage, keyword, description
      });
     setCanCheckIn(false);
+  } catch (error) {
+    console.error('Failed to fetch tarot card description:', error);
+  } finally {
+    setLoading(false);
+  }
   };
 
   return (
@@ -94,7 +110,7 @@ const App = () => {
           <p>✨{todayTarot.meaning}</p>
           <p>Today's keyword:{todayTarot.keyword}</p>
           <p>🌟{todayTarot.customMessage}🚀</p>
-          
+          <p>🔮{todayTarot.description}🔮</p>
         </div>
       )}
       <input
@@ -107,37 +123,37 @@ const App = () => {
       <button
         className="tarot-button"
         onClick={handleCheckIn}
-        disabled={!canCheckIn}
+        disabled={!canCheckIn || loading}
         style={{
           padding: "10px 20px",
           fontSize: "16px",
           cursor: canCheckIn ? "pointer" : "not-allowed",
         }}
       >
-        {canCheckIn ? "Sign in" : "Signed in"}
+         {loading ? 'Loading...' : canCheckIn ? "Sign in" : "Signed in"}
       </button>
       {todayTarot && (
-        <div>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
           <FacebookShareButton
             url={window.location.href}
             quote={todayTarot.customMessage}
             hashtag="#tarotfortune"
           >
-            <FacebookIcon size={32} round />
+            <FacebookIcon size={48} round />
           </FacebookShareButton>
           <TwitterShareButton
             url={window.location.href}
             title={todayTarot.customMessage}
             hashtags={['tarotfortune']}
           >
-            <TwitterIcon size={32} round />
+            <TwitterIcon size={48} round />
           </TwitterShareButton>
           <EmailShareButton
             url={window.location.href}
             subject={`Your Daily Tarot Fortune - ${todayTarot.name}`}
             body={todayTarot.customMessage}
           >
-            <EmailIcon size={32} round />
+            <EmailIcon size={48} round />
           </EmailShareButton>
         </div>
       )}
